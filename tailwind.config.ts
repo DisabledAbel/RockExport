@@ -52,6 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Geological rock colors
+				granite: 'hsl(var(--granite))',
+				basalt: 'hsl(var(--basalt))',
+				limestone: 'hsl(var(--limestone))',
+				quartzite: 'hsl(var(--quartzite))',
+				shale: 'hsl(var(--shale))',
+				sandstone: 'hsl(var(--sandstone))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -62,6 +69,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			backgroundImage: {
+				'gradient-geological': 'var(--gradient-geological)',
+				'gradient-earth': 'var(--gradient-earth)',
+				'gradient-mineral': 'var(--gradient-mineral)',
+			},
+			boxShadow: {
+				'rock': 'var(--shadow-rock)',
+				'specimen': 'var(--shadow-specimen)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

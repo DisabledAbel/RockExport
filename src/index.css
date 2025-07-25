@@ -2,41 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* RockExpert Design System - Geological color palette inspired by earth sciences */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors - warm earth tones */
+    --background: 45 15% 97%;
+    --foreground: 25 15% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card colors - clean sandstone white */
+    --card: 40 20% 99%;
+    --card-foreground: 25 15% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Popover colors */
+    --popover: 40 20% 99%;
+    --popover-foreground: 25 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - deep slate geological color */
+    --primary: 215 25% 27%;
+    --primary-foreground: 45 15% 97%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - warm sandstone */
+    --secondary: 35 25% 85%;
+    --secondary-foreground: 25 15% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - soft earth tone */
+    --muted: 35 20% 90%;
+    --muted-foreground: 25 15% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - mineral blue-gray */
+    --accent: 200 15% 75%;
+    --accent-foreground: 25 15% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Destructive - rust red */
+    --destructive: 15 75% 55%;
+    --destructive-foreground: 45 15% 97%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders and inputs - subtle earth */
+    --border: 35 15% 85%;
+    --input: 35 15% 85%;
+    --ring: 215 25% 27%;
 
-    --radius: 0.5rem;
+    /* Custom geological colors */
+    --granite: 220 8% 55%;
+    --basalt: 220 15% 25%;
+    --limestone: 45 30% 85%;
+    --quartzite: 0 0% 88%;
+    --shale: 200 20% 40%;
+    --sandstone: 35 35% 75%;
+
+    /* Gradients */
+    --gradient-geological: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--granite)));
+    --gradient-earth: linear-gradient(180deg, hsl(var(--sandstone)), hsl(var(--limestone)));
+    --gradient-mineral: linear-gradient(45deg, hsl(var(--accent)), hsl(var(--quartzite)));
+
+    /* Shadows */
+    --shadow-rock: 0 8px 25px -8px hsl(var(--primary) / 0.3);
+    --shadow-specimen: 0 4px 15px -4px hsl(var(--granite) / 0.4);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
