@@ -13,97 +13,70 @@ const Index = () => {
   const [currentRock, setCurrentRock] = useState<RockData | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // Mock rock identification service
+  // Real rock identification service using Supabase edge functions
   const identifyRock = async (image: File | null, description: string): Promise<RockData> => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Mock identification based on description keywords or return default granite
-    const lowerDesc = description.toLowerCase();
-    
-    if (lowerDesc.includes('black') || lowerDesc.includes('dark') || lowerDesc.includes('volcanic')) {
+    try {
+      // Prepare request data
+      const requestData: any = {
+        description: description.trim()
+      };
+
+      // If image is provided, analyze basic visual characteristics
+      if (image) {
+        // Simple image analysis - in a real app, you'd use computer vision APIs
+        requestData.imageAnalysis = {
+          colors: ["varies"], // Would extract from image
+          texture: "unknown",  // Would analyze from image
+          patterns: ["varies"] // Would detect from image
+        };
+      }
+
+      // Call Supabase edge function for rock identification
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('identify-rock', {
+        body: requestData
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Enhance with additional geological data
+      const { data: enhancedData, error: enhanceError } = await supabase.functions.invoke('geological-data', {
+        body: {
+          rockName: data.name,
+          rockType: data.type,
+          query: 'scientific_data'
+        }
+      });
+
+      if (enhanceError) {
+        console.warn('Could not fetch enhanced data:', enhanceError);
+      }
+
+      const rockData: RockData = {
+        ...data,
+        image: image ? URL.createObjectURL(image) : enhancedData?.scientificData?.image
+      };
+      
+      return rockData;
+    } catch (error) {
+      console.error('Error identifying rock:', error);
+      
+      // Fallback to basic granite identification if API fails
       return {
-        name: 'Basalt',
+        name: 'Granite',
         type: 'igneous',
-        confidence: 85,
-        formation: 'Basalt forms when mafic lava flows from volcanic eruptions cool rapidly at or near the Earth\'s surface. The rapid cooling prevents large crystals from forming, resulting in a fine-grained texture with small, barely visible mineral crystals.',
-        locations: ['Hawaiian Islands', 'Columbia River Plateau', 'Iceland', 'Mid-Ocean Ridges', 'Continental Flood Basalts'],
-        composition: ['Plagioclase feldspar', 'Pyroxene', 'Olivine', 'Magnetite', 'Ilmenite'],
-        uses: [
-          'Construction aggregate and road base material',
-          'Decorative stone for landscaping',
-          'Railroad ballast',
-          'Concrete production',
-          'Stone tools in ancient cultures'
-        ],
-        classification: {
-          group: 'Volcanic rocks',
-          family: 'Mafic igneous',
-          series: 'Basaltic'
-        },
-        funFacts: [
-          'Basalt covers more of Earth\'s surface than any other rock type, forming the ocean floor',
-          'The Moon\'s dark patches (maria) are ancient basalt flows',
-          'Some basalt formations create distinctive columnar joints when cooling, like at Giant\'s Causeway'
-        ]
+        confidence: 50,
+        formation: 'Unable to determine exact formation process. Granite typically forms from slow cooling of magma.',
+        locations: ['Worldwide distribution'],
+        composition: ['Quartz', 'Feldspar', 'Mica'],
+        uses: ['Construction material', 'Decorative stone'],
+        classification: { group: 'Igneous rock' },
+        funFacts: ['Rock identification temporarily unavailable. Please try again.']
       };
     }
-    
-    if (lowerDesc.includes('layer') || lowerDesc.includes('sand') || lowerDesc.includes('beach')) {
-      return {
-        name: 'Sandstone',
-        type: 'sedimentary',
-        confidence: 78,
-        formation: 'Sandstone forms from the compression and cementation of sand-sized mineral particles, primarily quartz and feldspar. These particles accumulate in environments like beaches, deserts, and river channels, then are buried and lithified over millions of years.',
-        locations: ['Colorado Plateau', 'Appalachian Mountains', 'Great Plains', 'Sahara Desert regions', 'Australian Outback'],
-        composition: ['Quartz', 'Feldspar', 'Rock fragments', 'Mica', 'Clay minerals', 'Iron oxide cement'],
-        uses: [
-          'Building stone and architectural facades',
-          'Grinding wheels and abrasives',
-          'Glass manufacturing (high-quartz varieties)',
-          'Landscaping and decorative stone',
-          'Oil and gas reservoir rock'
-        ],
-        classification: {
-          group: 'Clastic sedimentary rocks',
-          family: 'Arenites',
-          series: 'Quartz sandstone'
-        },
-        funFacts: [
-          'The red color in many sandstones comes from iron oxide (rust) coating the grains',
-          'Some sandstones are so pure they\'re used to make glass',
-          'Sandstone formations can preserve ancient sand dune structures for millions of years'
-        ]
-      };
-    }
-    
-    // Default to granite
-    return {
-      name: 'Granite',
-      type: 'igneous',
-      confidence: 92,
-      formation: 'Granite forms deep within the Earth\'s crust as magma cools slowly over millions of years. This slow cooling process allows large crystals of quartz, feldspar, and mica to develop, creating granite\'s characteristic speckled appearance.',
-      locations: ['Sierra Nevada Mountains', 'New Hampshire', 'Mount Rushmore', 'Scottish Highlands', 'Yosemite National Park'],
-      composition: ['Quartz', 'Potassium feldspar', 'Plagioclase feldspar', 'Biotite mica', 'Muscovite mica', 'Hornblende'],
-      uses: [
-        'Countertops and building stone',
-        'Monuments and sculptures',
-        'Road construction aggregate',
-        'Railroad ballast',
-        'Decorative landscaping stone'
-      ],
-      classification: {
-        group: 'Plutonic rocks',
-        family: 'Felsic igneous',
-        series: 'Granitic'
-      },
-      funFacts: [
-        'Granite is one of the most abundant rocks in the continental crust',
-        'The word "granite" comes from the Latin "granum" meaning grain',
-        'Some granite formations are over 3 billion years old',
-        'Granite often contains tiny amounts of radioactive elements like uranium'
-      ]
-    };
   };
 
   const handleAnalyze = async (image: File | null, description: string) => {

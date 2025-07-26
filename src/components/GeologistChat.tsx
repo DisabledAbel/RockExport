@@ -39,6 +39,52 @@ export const GeologistChat: React.FC<GeologistChatProps> = ({ rockData, onBack }
     }
   }, [messages]);
 
+  const getGeologistResponse = async (userQuestion: string): Promise<string> => {
+    try {
+      // First try to get real geological data from APIs
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('geological-data', {
+        body: {
+          rockName: rockData.name,
+          rockType: rockData.type,
+          query: 'scientific_data'
+        }
+      });
+
+      if (!error && data?.scientificData) {
+        return generateResponseFromData(userQuestion, data.scientificData);
+      }
+    } catch (error) {
+      console.warn('Could not fetch real-time geological data:', error);
+    }
+
+    // Fallback to rule-based responses
+    return simulateGeologistResponse(userQuestion);
+  };
+
+  const generateResponseFromData = (question: string, scientificData: any): string => {
+    const lowerQ = question.toLowerCase();
+    
+    if (lowerQ.includes('how') && (lowerQ.includes('form') || lowerQ.includes('creat'))) {
+      return `Based on current geological research: ${scientificData.summary || rockData.formation} 
+      
+For more detailed information, you can explore: ${scientificData.pageUrl || 'geological databases'}`;
+    }
+    
+    if (lowerQ.includes('where') && (lowerQ.includes('find') || lowerQ.includes('locat'))) {
+      return `According to geological surveys, ${rockData.name} can be found in various locations worldwide. 
+      
+The scientific literature indicates: ${scientificData.summary?.substring(0, 200) || rockData.formation}...
+      
+For current geological feature locations, I recommend checking local geological surveys.`;
+    }
+    
+    return `Based on geological databases: ${scientificData.summary || `${rockData.name} is a ${rockData.type} rock with unique properties.`}
+    
+${scientificData.pageUrl ? `Learn more: ${scientificData.pageUrl}` : ''}`;
+  };
+
   const simulateGeologistResponse = (userQuestion: string): string => {
     const lowerQ = userQuestion.toLowerCase();
     
@@ -84,9 +130,9 @@ export const GeologistChat: React.FC<GeologistChatProps> = ({ rockData, onBack }
     setCurrentMessage('');
     setIsTyping(true);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const response = simulateGeologistResponse(currentMessage);
+    // Get real geological response
+    try {
+      const response = await getGeologistResponse(currentMessage);
       const geologistMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'geologist',
@@ -95,8 +141,18 @@ export const GeologistChat: React.FC<GeologistChatProps> = ({ rockData, onBack }
       };
 
       setMessages(prev => [...prev, geologistMessage]);
+    } catch (error) {
+      console.error('Error getting geologist response:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'geologist',
+        content: 'I apologize, but I\'m having trouble accessing geological databases right now. Please try again in a moment.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
