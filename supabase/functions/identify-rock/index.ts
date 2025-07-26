@@ -63,33 +63,53 @@ function parseCharacteristics(description?: string, imageAnalysis?: any) {
     color: 'unknown',
     hardness: 'unknown',
     luster: 'unknown',
-    crystalSize: 'unknown'
+    crystalSize: 'unknown',
+    keywords: []
   }
 
   if (description) {
     const desc = description.toLowerCase()
+    console.log('Parsing description:', desc)
     
-    // Texture analysis
-    if (desc.includes('coarse') || desc.includes('rough')) characteristics.texture = 'coarse'
-    if (desc.includes('fine') || desc.includes('smooth')) characteristics.texture = 'fine'
-    if (desc.includes('glassy') || desc.includes('glass')) characteristics.texture = 'glassy'
-    if (desc.includes('porous') || desc.includes('holes')) characteristics.texture = 'vesicular'
+    // Store all keywords for broader matching
+    characteristics.keywords = desc.split(/\s+/)
     
-    // Color analysis
-    if (desc.includes('dark') || desc.includes('black')) characteristics.color = 'dark'
-    if (desc.includes('light') || desc.includes('white')) characteristics.color = 'light'
-    if (desc.includes('red') || desc.includes('pink')) characteristics.color = 'red'
-    if (desc.includes('green')) characteristics.color = 'green'
-    if (desc.includes('gray') || desc.includes('grey')) characteristics.color = 'gray'
+    // Texture analysis - more comprehensive
+    if (desc.match(/coarse|rough|bumpy|granular|grainy/)) characteristics.texture = 'coarse'
+    if (desc.match(/fine|smooth|silky|powdery/)) characteristics.texture = 'fine'
+    if (desc.match(/glassy|glass|shiny|reflective/)) characteristics.texture = 'glassy'
+    if (desc.match(/porous|holes|bubbles|foam|vesicular|pumice/)) characteristics.texture = 'vesicular'
+    if (desc.match(/layered|layers|banded|striped|sediment/)) characteristics.texture = 'layered'
+    if (desc.match(/foliated|flaky|scaly|sheet/)) characteristics.texture = 'foliated'
+    if (desc.match(/crystalline|crystal|sparkl/)) characteristics.texture = 'crystalline'
+    
+    // Color analysis - expanded
+    if (desc.match(/dark|black|charcoal|deep/)) characteristics.color = 'dark'
+    if (desc.match(/light|white|pale|cream|beige/)) characteristics.color = 'light'
+    if (desc.match(/red|pink|reddish|rust|brick/)) characteristics.color = 'red'
+    if (desc.match(/green|olive|emerald/)) characteristics.color = 'green'
+    if (desc.match(/gray|grey|silver/)) characteristics.color = 'gray'
+    if (desc.match(/brown|tan|beige|chocolate/)) characteristics.color = 'brown'
+    if (desc.match(/yellow|golden|amber/)) characteristics.color = 'yellow'
+    if (desc.match(/blue|azure/)) characteristics.color = 'blue'
     
     // Hardness indicators
-    if (desc.includes('hard') || desc.includes('difficult to scratch')) characteristics.hardness = 'hard'
-    if (desc.includes('soft') || desc.includes('easy to scratch')) characteristics.hardness = 'soft'
+    if (desc.match(/hard|difficult.*(scratch|break)|tough|solid/)) characteristics.hardness = 'hard'
+    if (desc.match(/soft|easy.*(scratch|break)|crumbl|chalk/)) characteristics.hardness = 'soft'
+    if (desc.match(/medium|moderate/)) characteristics.hardness = 'medium'
     
     // Luster
-    if (desc.includes('shiny') || desc.includes('metallic')) characteristics.luster = 'metallic'
-    if (desc.includes('dull') || desc.includes('earthy')) characteristics.luster = 'dull'
-    if (desc.includes('glassy') || desc.includes('vitreous')) characteristics.luster = 'vitreous'
+    if (desc.match(/shiny|metallic|mirror|reflective/)) characteristics.luster = 'metallic'
+    if (desc.match(/dull|earthy|matte|chalky/)) characteristics.luster = 'dull'
+    if (desc.match(/glassy|vitreous|glass/)) characteristics.luster = 'vitreous'
+    if (desc.match(/pearly|silk/)) characteristics.luster = 'pearly'
+    
+    // Crystal size
+    if (desc.match(/large.*(crystal|grain)|coarse/)) characteristics.crystalSize = 'large'
+    if (desc.match(/small.*(crystal|grain)|fine/)) characteristics.crystalSize = 'small'
+    if (desc.match(/no.*crystal|glass/)) characteristics.crystalSize = 'none'
+    
+    console.log('Parsed characteristics:', characteristics)
   }
 
   if (imageAnalysis?.colors) {
@@ -100,129 +120,128 @@ function parseCharacteristics(description?: string, imageAnalysis?: any) {
 }
 
 function classifyRock(characteristics: any) {
-  // Simplified rock classification based on geological principles
+  console.log('Classifying rock with characteristics:', characteristics)
   
-  // Igneous rocks
+  // Check for keyword-based identification first (more reliable)
+  const keywords = characteristics.keywords || []
+  const keywordString = keywords.join(' ')
+  
+  // Direct rock name mentions
+  if (keywordString.match(/granite/)) {
+    return createRockData('Granite', 'igneous', 88, 'Formed from slow cooling of felsic magma deep within the Earth\'s crust', 'plutonic', 'phaneritic')
+  }
+  if (keywordString.match(/basalt/)) {
+    return createRockData('Basalt', 'igneous', 85, 'Formed from rapid cooling of mafic lava flows on the Earth\'s surface', 'volcanic', 'aphanitic')
+  }
+  if (keywordString.match(/limestone|lime/)) {
+    return createRockData('Limestone', 'sedimentary', 82, 'Formed from accumulation of marine organisms and chemical precipitation in warm, shallow seas', 'chemical', 'crystalline')
+  }
+  if (keywordString.match(/sandstone|sand/)) {
+    return createRockData('Sandstone', 'sedimentary', 80, 'Formed from cementation of sand-sized mineral particles, primarily quartz', 'clastic', 'medium-grained')
+  }
+  if (keywordString.match(/marble/)) {
+    return createRockData('Marble', 'metamorphic', 85, 'Formed from metamorphism of limestone or dolomite under heat and pressure', 'non-foliated', 'crystalline')
+  }
+  if (keywordString.match(/slate/)) {
+    return createRockData('Slate', 'metamorphic', 83, 'Formed from low-grade metamorphism of shale or mudstone', 'foliated', 'fine-grained')
+  }
+  if (keywordString.match(/quartzite|quartz/)) {
+    return createRockData('Quartzite', 'metamorphic', 81, 'Formed from metamorphism of sandstone under high pressure and temperature', 'non-foliated', 'granoblastic')
+  }
+  if (keywordString.match(/obsidian/)) {
+    return createRockData('Obsidian', 'igneous', 90, 'Formed from rapid cooling of volcanic glass, preventing crystal formation', 'volcanic', 'glassy')
+  }
+  if (keywordString.match(/pumice/)) {
+    return createRockData('Pumice', 'igneous', 87, 'Formed from gas-filled volcanic eruptions that create a frothy, lightweight rock', 'volcanic', 'vesicular')
+  }
+  
+  // Characteristic-based classification
+  
+  // Igneous rocks - texture-based
   if (characteristics.texture === 'glassy') {
-    return {
-      name: 'Obsidian',
-      type: 'igneous' as const,
-      confidence: 85,
-      formation: 'Formed from rapid cooling of volcanic glass, preventing crystal formation',
-      subtype: 'volcanic',
-      textureType: 'glassy'
-    }
+    return createRockData('Obsidian', 'igneous', 85, 'Formed from rapid cooling of volcanic glass, preventing crystal formation', 'volcanic', 'glassy')
   }
   
   if (characteristics.texture === 'vesicular' || characteristics.texture === 'porous') {
     if (characteristics.color === 'light') {
-      return {
-        name: 'Pumice',
-        type: 'igneous' as const,
-        confidence: 80,
-        formation: 'Formed from gas-filled volcanic eruptions that create a frothy, lightweight rock',
-        subtype: 'volcanic',
-        textureType: 'vesicular'
-      }
+      return createRockData('Pumice', 'igneous', 80, 'Formed from gas-filled volcanic eruptions that create a frothy, lightweight rock', 'volcanic', 'vesicular')
     } else {
-      return {
-        name: 'Scoria',
-        type: 'igneous' as const,
-        confidence: 75,
-        formation: 'Formed from basaltic or andesitic magma during Strombolian eruptions',
-        subtype: 'volcanic',
-        textureType: 'vesicular'
-      }
+      return createRockData('Scoria', 'igneous', 75, 'Formed from basaltic or andesitic magma during Strombolian eruptions', 'volcanic', 'vesicular')
     }
   }
   
-  if (characteristics.texture === 'coarse' && characteristics.color === 'light') {
-    return {
-      name: 'Granite',
-      type: 'igneous' as const,
-      confidence: 82,
-      formation: 'Formed from slow cooling of felsic magma deep within the Earth\'s crust',
-      subtype: 'plutonic',
-      textureType: 'phaneritic'
+  if (characteristics.texture === 'coarse' || characteristics.crystalSize === 'large') {
+    if (characteristics.color === 'light' || characteristics.color === 'gray') {
+      return createRockData('Granite', 'igneous', 82, 'Formed from slow cooling of felsic magma deep within the Earth\'s crust', 'plutonic', 'phaneritic')
+    } else if (characteristics.color === 'dark') {
+      return createRockData('Gabbro', 'igneous', 78, 'Formed from slow cooling of mafic magma deep within the Earth\'s crust', 'plutonic', 'phaneritic')
     }
   }
   
-  if (characteristics.texture === 'fine' && characteristics.color === 'dark') {
-    return {
-      name: 'Basalt',
-      type: 'igneous' as const,
-      confidence: 78,
-      formation: 'Formed from rapid cooling of mafic lava flows on the Earth\'s surface',
-      subtype: 'volcanic',
-      textureType: 'aphanitic'
-    }
+  if (characteristics.texture === 'fine' && (characteristics.color === 'dark' || characteristics.color === 'black')) {
+    return createRockData('Basalt', 'igneous', 78, 'Formed from rapid cooling of mafic lava flows on the Earth\'s surface', 'volcanic', 'aphanitic')
   }
   
   // Sedimentary rocks
-  if (characteristics.texture === 'fine' && characteristics.hardness === 'soft') {
-    if (characteristics.color === 'light') {
-      return {
-        name: 'Limestone',
-        type: 'sedimentary' as const,
-        confidence: 75,
-        formation: 'Formed from accumulation of marine organisms and chemical precipitation in warm, shallow seas',
-        subtype: 'chemical',
-        textureType: 'crystalline'
-      }
+  if (characteristics.texture === 'layered' || keywordString.match(/layer|bed|strat/)) {
+    if (characteristics.hardness === 'soft' || keywordString.match(/clay|mud/)) {
+      return createRockData('Shale', 'sedimentary', 75, 'Formed from compaction of clay and silt particles in quiet water environments', 'clastic', 'fine-grained')
     } else {
-      return {
-        name: 'Shale',
-        type: 'sedimentary' as const,
-        confidence: 70,
-        formation: 'Formed from compaction of clay and silt particles in quiet water environments',
-        subtype: 'clastic',
-        textureType: 'fine-grained'
-      }
+      return createRockData('Sandstone', 'sedimentary', 72, 'Formed from cementation of sand-sized mineral particles, primarily quartz', 'clastic', 'medium-grained')
     }
   }
   
-  if (characteristics.texture === 'coarse' && (characteristics.hardness === 'hard' || characteristics.hardness === 'unknown')) {
-    return {
-      name: 'Sandstone',
-      type: 'sedimentary' as const,
-      confidence: 72,
-      formation: 'Formed from cementation of sand-sized mineral particles, primarily quartz',
-      subtype: 'clastic',
-      textureType: 'medium-grained'
-    }
+  if (characteristics.hardness === 'soft' && (characteristics.color === 'light' || characteristics.color === 'white')) {
+    return createRockData('Limestone', 'sedimentary', 75, 'Formed from accumulation of marine organisms and chemical precipitation in warm, shallow seas', 'chemical', 'crystalline')
+  }
+  
+  if (keywordString.match(/sand|grain/) || characteristics.texture === 'coarse') {
+    return createRockData('Sandstone', 'sedimentary', 72, 'Formed from cementation of sand-sized mineral particles, primarily quartz', 'clastic', 'medium-grained')
   }
   
   // Metamorphic rocks
-  if (characteristics.luster === 'metallic' || characteristics.color === 'dark') {
-    return {
-      name: 'Schist',
-      type: 'metamorphic' as const,
-      confidence: 68,
-      formation: 'Formed from medium-grade metamorphism of shale or other fine-grained rocks',
-      subtype: 'foliated',
-      textureType: 'schistose'
+  if (characteristics.texture === 'foliated' || keywordString.match(/flaky|sheet|split/)) {
+    if (characteristics.hardness === 'soft') {
+      return createRockData('Slate', 'metamorphic', 70, 'Formed from low-grade metamorphism of shale or mudstone', 'foliated', 'fine-grained')
+    } else {
+      return createRockData('Schist', 'metamorphic', 68, 'Formed from medium-grade metamorphism of shale or other fine-grained rocks', 'foliated', 'schistose')
     }
   }
   
-  if (characteristics.hardness === 'hard' && characteristics.color === 'light') {
-    return {
-      name: 'Quartzite',
-      type: 'metamorphic' as const,
-      confidence: 74,
-      formation: 'Formed from metamorphism of sandstone under high pressure and temperature',
-      subtype: 'non-foliated',
-      textureType: 'granoblastic'
+  if (characteristics.texture === 'crystalline' || characteristics.luster === 'vitreous') {
+    if (characteristics.color === 'light' || characteristics.color === 'white') {
+      return createRockData('Marble', 'metamorphic', 76, 'Formed from metamorphism of limestone or dolomite under heat and pressure', 'non-foliated', 'crystalline')
+    } else {
+      return createRockData('Quartzite', 'metamorphic', 74, 'Formed from metamorphism of sandstone under high pressure and temperature', 'non-foliated', 'granoblastic')
     }
   }
   
-  // Default fallback
+  // Default fallbacks based on broad characteristics
+  if (characteristics.color === 'dark' || characteristics.color === 'black') {
+    return createRockData('Basalt', 'igneous', 65, 'Formed from rapid cooling of mafic lava flows on the Earth\'s surface', 'volcanic', 'aphanitic')
+  }
+  
+  if (characteristics.color === 'light' || characteristics.color === 'gray') {
+    return createRockData('Granite', 'igneous', 65, 'Formed from slow cooling of felsic magma deep within the Earth\'s crust', 'plutonic', 'phaneritic')
+  }
+  
+  if (characteristics.hardness === 'soft') {
+    return createRockData('Limestone', 'sedimentary', 60, 'Formed from accumulation of marine organisms and chemical precipitation in warm, shallow seas', 'chemical', 'crystalline')
+  }
+  
+  // Final fallback - granite is most common
+  console.log('Using final fallback - Granite')
+  return createRockData('Granite', 'igneous', 55, 'Common igneous rock formed from cooling magma - identification needs more specific details', 'plutonic', 'phaneritic')
+}
+
+function createRockData(name: string, type: 'igneous' | 'metamorphic' | 'sedimentary', confidence: number, formation: string, subtype: string, textureType: string) {
   return {
-    name: 'Unknown Rock',
-    type: 'igneous' as const,
-    confidence: 30,
-    formation: 'Unable to determine formation process from available characteristics',
-    subtype: 'unknown',
-    textureType: 'unknown'
+    name,
+    type,
+    confidence,
+    formation,
+    subtype,
+    textureType
   }
 }
 
