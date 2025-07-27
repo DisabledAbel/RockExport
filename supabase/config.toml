@@ -1,1 +1,30 @@
 project_id = "skksjxsfxuwtzwpujrpw"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+external_url = "https://skksjxsfxuwtzwpujrpw.supabase.co"
+api_external_url = "https://skksjxsfxuwtzwpujrpw.supabase.co"
+additional_redirect_urls = ["https://localhost:3000", "http://localhost:5173", "https://skksjxsfxuwtzwpujrpw.supabase.co/auth/v1/callback"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+
+[functions.identify-rock]
+verify_jwt = false
+
+[functions.geological-data]
+verify_jwt = false
+
+[functions.rock-chatbot]
+verify_jwt = true
