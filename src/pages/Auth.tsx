@@ -41,6 +41,8 @@ export default function Auth() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Attempting sign in with:', email);
+    
     if (!email || !password) {
       toast({
         title: "Error",
@@ -52,10 +54,13 @@ export default function Auth() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Calling supabase.auth.signInWithPassword...');
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      console.log('Sign in response:', { data, error });
 
       if (error) {
         throw error;
@@ -66,6 +71,7 @@ export default function Auth() {
         description: "Welcome back!",
       });
     } catch (error: any) {
+      console.error('Sign in error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to sign in",
@@ -136,18 +142,22 @@ export default function Auth() {
 
   const handleGithubSignIn = async () => {
     setLoading(true);
+    console.log('Attempting GitHub sign in...');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}/`,
         },
       });
 
+      console.log('GitHub sign in response:', { data, error });
+
       if (error) {
         throw error;
       }
     } catch (error: any) {
+      console.error('GitHub sign in error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to sign in with GitHub",
