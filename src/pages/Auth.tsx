@@ -10,6 +10,8 @@ import { Github, Mail, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Auth() {
+  console.log('Auth component rendering...');
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
